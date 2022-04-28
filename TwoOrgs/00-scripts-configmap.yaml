@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scripts
+data:
+  configClient.sh: |-
+    #!/bin/bash
+    
+    ORG_NAME=${1:-Org1}
+    PEER_NAME=${2:-org1-peer0}
+
+    # PEER ADDRESS
+    export CORE_PEER_ADDRESS=$PEER_NAME:7051
+    export CORE_PEER_ADDRESS_ORG0=org0-peer0:7051
+    export CORE_PEER_ADDRESS_ORG1=org1-peer0:7051
+
+    # GENERAL
+    export ORDERER_ADDRESS=orderer0:7050
+    export ORDERER_ADMIN_LISTENADDRESS=orderer0:7080
+    export ORDERER_ADMIN_TLS_ENABLED=true
+    export ORDERER_ADMIN_TLS_PRIVATEKEY=/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/tls/server.key
+    export ORDERER_ADMIN_TLS_CERTIFICATE=/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/tls/server.crt
+    export ORDERER_ADMIN_TLS_CLIENTAUTHREQUIRED=true
+    export ORDERER_ADMIN_TLS_CLIENTROOTCAS=[/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/msp/tlscacerts/tlsca.consortium-cert.pem]
+    export CORE_PEER_ID=cli-$ORG_NAME
+    export CORE_PEER_LOCALMSPID=$ORG_NAME
+
+    # CORE TLS
+    export TLS_PATH=/data/crypto-config/peerOrganizations/$ORG_NAME/peers/$PEER_NAME/tls
+    export TLS_PATH_ORG0=/data/crypto-config/peerOrganizations/Org0/peers/org0-peer0/tls
+    export TLS_PATH_ORG1=/data/crypto-config/peerOrganizations/Org1/peers/org1-peer0/tls
+
+    export CORE_PEER_TLS_ENABLED=true
+    export CORE_PEER_TLS_ROOTCERT_FILE=$TLS_PATH/ca.crt
+    export CORE_PEER_TLS_ROOTCERT_FILE_ORG0=$TLS_PATH_ORG0/ca.crt
+    export CORE_PEER_TLS_ROOTCERT_FILE_ORG1=$TLS_PATH_ORG1/ca.crt
+
+    export CORE_PEER_TLS_CERT_FILE=$TLS_PATH/server.crt
+    export CORE_PEER_TLS_KEY_FILE=$TLS_PATH/server.key
+
+
+    # CLIENT TLS
+    export CORE_PEER_TLS_CLIENTAUTHREQUIRED=true
+    export CORE_PEER_TLS_CLIENTCERT_FILE=/data/crypto-config/peerOrganizations/$ORG_NAME/users/Admin@$ORG_NAME/tls/client.crt
+    export CORE_PEER_TLS_CLIENTKEY_FILE=/data/crypto-config/peerOrganizations/$ORG_NAME/users/Admin@$ORG_NAME/tls/client.key
+
+    # OTHER
+    export GOPATH=/opt/gopath
+    export CORE_PEER_MSPCONFIGPATH=/data/crypto-config/peerOrganizations/$ORG_NAME/users/Admin@$ORG_NAME/msp
+    export ORDERER_CA=/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/msp/tlscacerts/tlsca.consortium-cert.pem
