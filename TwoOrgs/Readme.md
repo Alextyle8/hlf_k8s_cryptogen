@@ -3,7 +3,7 @@ This project provides a Hyperledger Fabric environment to test and develop witho
 
 ## Deploy nodes
 ```bash
-git clone https://github.com/agustincharry/hlf_k8s_cryptogen.git
+git clone https://github.com/Alextyle8/hlf_k8s_cryptogen.git
 cd hlf_k8s_cryptogen
 kubectl apply -f TwoOrgs
 ```
@@ -47,8 +47,13 @@ export CC_VERSION=$CC_SEQUENCE.0
 . /scripts/configClient.sh Org0 org0-peer0
 cd /hlf-artifacts/
 
-# Creating the channel file
-peer channel create -o $ORDERER_ADDRESS -c $CHANNEL_ID -f ./channel.tx --tls --cafile $ORDERER_CA --certfile $CORE_PEER_TLS_CLIENTCERT_FILE --clientauth --keyfile $CORE_PEER_TLS_CLIENTKEY_FILE
+# Orderer channel join
+export OSM_SIGN_CERT=/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/tls/server.crt
+export OSM_SIGN_KEY=/data/crypto-config/ordererOrganizations/consortium/orderers/orderer0/tls/server.key
+
+osnadmin channel list -o $ORDERER_ADMIN_LISTENADDRESS --ca-file $ORDERER_CA --client-cert $OSM_SIGN_CERT --client-key $OSM_SIGN_KEY
+
+osnadmin channel join --channelID $CHANNEL_ID --config-block ./mychannel.block -o $ORDERER_ADMIN_LISTENADDRESS --ca-file $ORDERER_CA --client-cert $OSM_SIGN_CERT --client-key $OSM_SIGN_KEY
 
 # Packaging chaincode
 peer lifecycle chaincode package basic_$CC_VERSION.tar.gz --path /chaincode-go --lang golang --label basic_$CC_VERSION
